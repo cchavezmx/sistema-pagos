@@ -22,7 +22,6 @@ export default function LoteID () {
   })
 
   const ButtonView = (item) => {
-    console.log('🚀 ~ file: [clienteName].jsx ~ line 25 ~ ButtonView ~ item', item)
     return (
     <div className="flex justify-center gap-1 w-[100vw]">
       <button

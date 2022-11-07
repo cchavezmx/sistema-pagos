@@ -25,7 +25,6 @@ const endpoints = {
 }
 
 export default async function fetcher ({ key, variables }) {
-  console.log('🚀 ~ file: fetcher.js ~ line 22 ~ fetcher ~ key, variables', key, variables)
   const RESPONSE = endpoints[key]
   const [, queryName] = key.split('/api/')
   try {
@@ -56,7 +55,6 @@ export default async function fetcher ({ key, variables }) {
       }
     }
 
-    console.log('🚀 ~ file: fetcher.js ~ line 22 ~ fetcher ~ data', data)
     return data[queryName]
   } catch (error) {
     console.log('🚀 ~ file: fetcher.js ~ line 22 ~ fetcher ~ error', error)

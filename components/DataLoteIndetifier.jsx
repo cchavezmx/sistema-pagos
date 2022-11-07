@@ -8,7 +8,6 @@ const DataLoteIndetifier = ({ errores, setErrores, proyecto: proyectoId }) => {
   const [fraccionamiento, setFraccionamiento] = useState('')
   const { data: watchLoteInfo } = useSWR({ key: '/api/watchLoteInfo', variables: { lote, manzana, fraccionamiento, proyectoId } })
 
-  console.log('🚀 ~ file: AddNewLoteModal.jsx ~ line 12 ~ DataLoteIndetifier ~ watchLoteInfo', watchLoteInfo)
   useEffect(() => {
     if (Array.isArray(watchLoteInfo) && watchLoteInfo.length > 0) {
       setErrores((prev) => ({ ...prev, lote: 'Verifica los datos del lote, puede estar repetido' }))
