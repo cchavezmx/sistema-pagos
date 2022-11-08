@@ -4,7 +4,7 @@ import Link from 'next/link'
 
 export default function Home () {
   const { data: owners } = useSWR({ key: '/api/owners' })
-
+  console.log(process.env.NEXT_PUBLIC_VERCEL_URL)
   return (
   <div className="grid">
     <main className="grid lg:grid-cols-4 md:grid-cols-2 grid-cols-1 gap-4">
