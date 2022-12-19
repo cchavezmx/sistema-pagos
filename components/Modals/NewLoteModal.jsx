@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Box, Modal, Typography } from '@mui/material'
-import CustomButton from '../styleComponents/CustomButton'
 import { STYLES } from '../../utils/consts.js'
+import CustomButton from '../styleComponents/CustomButton'
 import CreateNewLoteModal from './CreateNewLoteModal'
 import AddNewLoteModal from './AddNewLoteModal'
 import AutocompleteEmail from '../styleComponents/AutocompleteEmail'

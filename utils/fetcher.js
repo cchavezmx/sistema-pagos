@@ -7,7 +7,9 @@ import {
   CREATE_PROYECTO,
   CREATE_LOTE,
   GET_EMAILS_CLIENTES,
-  WATCH_LOTE_INFO
+  WATCH_LOTE_INFO,
+  CREATE_PAGO,
+  PAGAR_PAGO
 } from '../graphql/query'
 const API_URL = process.env.NEXT_PUBLIC_API_URL
 
@@ -21,7 +23,9 @@ const endpoints = {
   '/api/createProyecto': CREATE_PROYECTO,
   '/api/createLote': CREATE_LOTE,
   '/api/getAllClients': GET_EMAILS_CLIENTES,
-  '/api/watchLoteInfo': WATCH_LOTE_INFO
+  '/api/watchLoteInfo': WATCH_LOTE_INFO,
+  '/api/createPago': CREATE_PAGO,
+  '/api/pagarPago': PAGAR_PAGO
 }
 
 export default async function fetcher ({ key, variables }) {
@@ -30,6 +34,7 @@ export default async function fetcher ({ key, variables }) {
   try {
     const data = await graphQLClient.request(RESPONSE, variables)
       .then((data) => data)
+    console.log('🚀 ~ file: fetcher.js ~ line 32 ~ fetcher ~ data', data)
 
     if (queryName === 'owners' && data.owners.length === 0) {
       return {

@@ -34,9 +34,10 @@ export default function CreateNewLoteModal ({ open, handleClose }) {
       correo
     } = Object.fromEntries(form)
 
+    console.log('🚀 ~ file: CreateNewLoteModal.jsx:35 ~ handledSubmit ~ correo', correo)
     const variablesSchema = z.object({
       name: z.string().min(1, 'Este campo es requerido').max(50),
-      email: z.string().email('Correo invalido'),
+      email: z.string().email('Este campo debe ser un correo valido').min(1, 'Este campo es requerido').max(50),
       manzana: z.string().min(1, 'Este campo es requerido').max(50),
       lote: z.string().min(1, 'Este campo es requerido').max(50),
       fraccionamiento: z.string().min(1, 'Este campo es requerido').max(50),
@@ -64,6 +65,7 @@ export default function CreateNewLoteModal ({ open, handleClose }) {
 
     }
     const isValid = variablesSchema.safeParse(variables)
+    console.log('🚀 ~ file: CreateNewLoteModal.jsx:67 ~ handledSubmit ~ isValid', isValid)
     if (isValid.success) {
       fetcher({ key: '/api/createLote', variables: { lote: variables, newClientUpsert: true } })
         .then((res) => {

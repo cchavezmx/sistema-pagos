@@ -52,6 +52,7 @@ const GET_LOTES_BY_PROYECTO = gql`
       plazo
       mensualidad
       inicioContrato
+
       _id
       clienteData {
         name,
@@ -62,29 +63,37 @@ const GET_LOTES_BY_PROYECTO = gql`
 `
 
 const GET_LOTE_DETAIL = gql`
-query Query($lote: ID!, $proyecto: ID!, $cliente: ID!) {
+query GetAllPagosFromLote($lote: ID!, $proyecto: ID!, $cliente: ID!) {
   getAllPagosFromLote(lote: $lote, proyecto: $proyecto, cliente: $cliente) {
     _id
     isActive
-    status    
+    status
     folio
     consecutivo
     refPago
-    deposito
+    monto
     ctaBancaria
-    fraccionamiento
     banco
     tipoPago
     fechaPago
     refBanco
+    description
+    isPaid
     clienteData {
       name
     }
     proyectoData {
-      title
+      address
+    }
+    loteData {
+      cliente
+      fraccionamiento
+      manzana
+      lote      
     }
     ownerData {
       name
+      razonSocial
     }
   }
 }
@@ -134,6 +143,46 @@ const WATCH_LOTE_INFO = gql`
   }
 `
 
+const CREATE_PAGO = gql`
+  mutation CreatePago($pago: PagoInput) {
+    createPago(pago: $pago) {
+      _id
+      isActive
+      status
+      folio
+      consecutivo
+      refPago
+      monto
+      ctaBancaria
+      banco
+      tipoPago
+      fechaPago
+      refBanco
+      clienteData {
+        address
+      }
+      proyectoData {
+        isActive
+      }
+      loteData {
+        fraccionamiento
+      }
+      ownerData {
+        name
+      }
+    }
+  }
+`
+
+const PAGAR_PAGO = gql`
+  mutation PagarPago($pago: ID!) {
+    pagarPago(pago: $pago) {
+      _id
+      isPaid
+    }
+  }
+`
+
 export {
   PDF,
   GET_OWNERS,
@@ -143,5 +192,7 @@ export {
   CREATE_PROYECTO,
   CREATE_LOTE,
   GET_EMAILS_CLIENTES,
-  WATCH_LOTE_INFO
+  WATCH_LOTE_INFO,
+  CREATE_PAGO,
+  PAGAR_PAGO
 }
