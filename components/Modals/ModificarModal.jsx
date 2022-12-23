@@ -86,19 +86,18 @@ export default function ModificarModal ({ data: dataForm }) {
     const form = new FormData()
     const data = Object.fromEntries(form)
 
-    // const payload = {
-    //   ...data,
-    //   monto: Number(data.monto),
-    //   cliente: pagoData.clienteID,
-    //   proyecto: pagoData.proyectoID,
-    //   lote: pagoData.loteID
-    // }
+    const payload = {
+      ...data,
+      monto: Number(data.monto)
+      // cliente: pagoData.clienteID,
+      // proyecto: pagoData.proyectoID,
+      // lote: pagoData.loteID
+    }
 
-    // const validateForm = formSchema.safeParse(payload)
-    // if (validateForm.success === true) {
-    //   console.log('Formulario valido')
-    //   console.log({ payload, pagoData })
-    // }
+    const validateForm = formSchema.safeParse(payload)
+    if (validateForm.success === true) {
+      console.log('Formulario valido')
+    }
   }
 
   console.log(errorForm)
