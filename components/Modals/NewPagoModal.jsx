@@ -7,15 +7,18 @@ import fetcher from '@/components/fetcher.js'
 import { toast } from 'react-toastify'
 import z from 'zod'
 
+// TODO HAY QUE HACER UN MODAL PARA AL DARLE CLICK A PAGAR SE AÑADA EL REF DE PAGO Y REF DE BANCO
+// Y AGREGAR UNA OPCION PARA ENVIAR CORREO
+
 export default function NewPagoModal ({ open, toogleClose, pagoData, mutate }) {
   const [errorForm, setErrorForm] = useState({})
   const handledNewPagoForm = async (e) => {
     e.preventDefault()
     setErrorForm({})
     const formSchema = z.object({
-      refPago: z.string().min(1, 'Este campo es requerido'),
+      // refPago: z.string().min(1, 'Este campo es requerido'),
+      // refBanco: z.string().min(1, 'Este campo es requerido'),
       description: z.string().min(1, 'Este campo es requerido'),
-      refBanco: z.string().min(1, 'Este campo es requerido'),
       monto: z.number('Este campos es requerido').min(1, 'Este campo es requerido'),
       fechaPago: z.string().min(1, 'Este campo es requerido'),
       ctaBancaria: z.string().min(1, 'Este campo es requerido'),
@@ -58,8 +61,6 @@ export default function NewPagoModal ({ open, toogleClose, pagoData, mutate }) {
     }
   }
 
-  console.log(errorForm)
-
   return (
     <Drawer
       open={open}
@@ -80,12 +81,14 @@ export default function NewPagoModal ({ open, toogleClose, pagoData, mutate }) {
           <TextField
             name='monto'
             label="Monto depositado"
+            helperText={<span style={{ color: 'red' }}>requerido*</span>}
             error={!!errorForm.monto}
             onFocus={() => setErrorForm((prev) => ({ ...prev, monto: '' }))}
           />
           <TextField
             name='description'
             label="Descripción del pago"
+            helperText={<span style={{ color: 'red' }}>requerido*</span>}
             error={!!errorForm.description}
             onFocus={() => setErrorForm((prev) => ({ ...prev, description: '' }))}
           />
@@ -114,6 +117,7 @@ export default function NewPagoModal ({ open, toogleClose, pagoData, mutate }) {
             type="ctaBancaria"
             name="ctaBancaria"
             label="Cuenta bancaria"
+            helperText={<span style={{ color: 'red' }}>requerido*</span>}
             error={!!errorForm.ctaBancaria}
             onFocus={() => setErrorForm((prev) => ({ ...prev, ctaBancaria: '' }))}
           />

@@ -4,44 +4,57 @@ import { Stack } from '@mui/system'
 import ButtonMaya from '../ButtonMaya.jsx'
 import BancoSelector from '../BancoSelector.jsx'
 import z from 'zod'
+import fetcher from '@/components/fetcher.js'
+import { useSWRConfig } from 'swr'
+import { useRouter } from 'next/router'
 
-const PagosSwitch = ({ name, value }) => {
-  console.log('🚀 ~ file: ModificarModal.jsx ~ line 41 ~ TextLoco ~ key, value', name, value)
+const PagosSwitch = ({ name, value, error, setErrorForm }) => {
+  const resetError = () => {
+    setErrorForm({})
+  }
+
   const [text, setText] = useState(value)
   const slugName = {
     folio: 'Folio',
     refPago: 'Referencia de Pago',
     monto: 'Monto',
-    banco: 'Banco',
+    refBanco: 'Referencia Bancaria',
     ctaBancaria: 'Cuenta Bancaria',
     fechaPago: 'Fecha de Pago',
-    description: 'Descripción'
+    description: 'Descripción',
+    deposito: 'Depósito'
   }
 
   switch (name) {
     case 'folio':
     case 'description':
+    case 'refBanco':
     case 'monto':
     case 'refPago':
     case 'ctaBancaria':
+    case 'depostio':
       return (
         <TextField
-        label={slugName[name]}
-        variant="outlined"
-        name={name}
-        value={text}
-        onChange={(e) => setText(e.target.value)}
+          label={slugName[name]}
+          variant="outlined"
+          error={error[name]}
+          name={name}
+          value={text}
+          onFocus={resetError}
+          onChange={(e) => setText(e.target.value)}
         />
       )
     case 'fechaPago':
       return (
         <TextField
-        type="date"
-        label={name}
-        variant="outlined"
-        name={name}
-        value={new Date(+value).toISOString().slice(0, 10)}
-        onChange={(e) => setText(e.target.value)}
+          type="date"
+          label={name}
+          variant="outlined"
+          name={name}
+          value={new Date(+value).toISOString().slice(0, 10)}
+          onChange={(e) => setText(e.target.value)}
+          onFocus={resetError}
+          error={error[name]}
         />
       )
     case 'tipoPago':
@@ -61,29 +74,45 @@ const PagosSwitch = ({ name, value }) => {
       )
     case 'banco':
       return <BancoSelector prevData={value}/>
+    case '_id': return (
+    <TextField
+      label={slugName[name]}
+      variant="outlined"
+      name={name}
+      value={value}
+      style={{ display: 'none' }}
+      error={error[name]}
+      onFocus={resetError}
+    />
+    )
     default:
-      break
+      return <></>
   }
 }
 
 export default function ModificarModal ({ data: dataForm }) {
-  console.log('🚀 ~ file: ModificarModal.jsx ~ line 9 ~ ModificarModal ~ dataForm', dataForm)
   const [errorForm, setErrorForm] = useState({})
   const [modal, setModal] = useState(false)
+  const { mutate } = useSWRConfig()
+  const router = useRouter()
+  const { clienteID, proyectoID, loteID } = router.query
+
   const handledNewPagoForm = async (e) => {
     e.preventDefault()
     setErrorForm({})
     const formSchema = z.object({
+      _id: z.string().min(1, 'Este campo es requerido'),
+      folio: z.string().min(1, 'Este campo es requerido'),
       refPago: z.string().min(1, 'Este campo es requerido'),
-      refBanco: z.string().min(1, 'Este campo es requerido'),
       monto: z.number('Este campos es requerido').min(1, 'Este campo es requerido'),
-      fechaPago: z.string().min(1, 'Este campo es requerido'),
       ctaBancaria: z.string().min(1, 'Este campo es requerido'),
       banco: z.string().min(1, 'Este campo es requerido'),
-      tipoPago: z.string().min(1, 'Este campo es requerido')
+      fechaPago: z.string().min(1, 'Este campo es requerido'),
+      refBanco: z.string().min(1, 'Este campo es requerido'),
+      description: z.string().min(1, 'Este campo es requerido')
     })
 
-    const form = new FormData()
+    const form = new FormData(e.target)
     const data = Object.fromEntries(form)
 
     const payload = {
@@ -96,11 +125,33 @@ export default function ModificarModal ({ data: dataForm }) {
 
     const validateForm = formSchema.safeParse(payload)
     if (validateForm.success === true) {
-      console.log('Formulario valido')
+      await fetcher({
+        key: '/api/patchPago',
+        variables: { pago: payload }
+      }).then(res => {
+        const { status } = JSON.parse(res)
+        if (status === 200) {
+          mutate({
+            key: '/api/getAllPagosFromLote',
+            variables: {
+              cliente: clienteID,
+              proyecto: proyectoID,
+              lote: loteID
+            }
+          })
+
+          setModal(false)
+        }
+      })
+    } else {
+      console.log({ validateForm })
+      Object.entries(validateForm.error.issues).forEach(([key, value]) => {
+        value.path.forEach((path) => {
+          setErrorForm((prev) => ({ ...prev, [path]: value.message }))
+        })
+      })
     }
   }
-
-  console.log(errorForm)
 
   return (
     <>
@@ -121,7 +172,19 @@ export default function ModificarModal ({ data: dataForm }) {
           gap: '10px'
         }} onSubmit={handledNewPagoForm}>
           {
-            Object.entries(dataForm).map(([key, value]) => <PagosSwitch key={key} name={key} value={value} />)
+            Object
+              .entries(dataForm)
+              .map(([key, value]) => {
+                return (
+                  <PagosSwitch
+                    key={key}
+                    name={key}
+                    value={value}
+                    error={errorForm}
+                    setErrorForm={setErrorForm}
+                  />
+                )
+              })
           }
           <Stack direction="row" sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
             <ButtonMaya>Guardar cambios</ButtonMaya>

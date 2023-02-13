@@ -1,9 +1,9 @@
 import { gql } from 'graphql-request'
 
 const PDF = `
-mutation CreatePDF($pago: ID!) {
-  createPDF(pago: $pago)
-}
+  mutation CreatePDF($pago: ID!, $owner: ID!) {
+    createPDF(pago: $pago, owner: $owner)
+  }
 `
 
 const GET_OWNERS = gql`
@@ -175,11 +175,16 @@ const CREATE_PAGO = gql`
 `
 
 const PAGAR_PAGO = gql`
-  mutation PagarPago($pago: ID!) {
-    pagarPago(pago: $pago) {
-      _id
-      isPaid
-    }
+mutation PagarPago($pago: souldInput) {
+  pagarPago(pago: $pago) {
+    _id,    
+  }
+}
+`
+
+const PATCH_PAGO = gql`
+  mutation PatchPago($pago: PagoInput) {
+    patchPago(pago: $pago) 
   }
 `
 
@@ -194,5 +199,6 @@ export {
   GET_EMAILS_CLIENTES,
   WATCH_LOTE_INFO,
   CREATE_PAGO,
-  PAGAR_PAGO
+  PAGAR_PAGO,
+  PATCH_PAGO
 }

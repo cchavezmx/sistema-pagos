@@ -1,5 +1,5 @@
 // lotes por proyecto
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import useSWR from 'swr'
 import { Box, Tooltip, Chip } from '@mui/material'
 import { useRouter } from 'next/router'
@@ -8,12 +8,16 @@ import { numberFormat } from 'utils/NumberFormat'
 import NewPagoModal from '@/components/Modals/NewPagoModal'
 import { blueGrey, orange } from '@mui/material/colors'
 import ModificarModal from '@/components/Modals/ModificarModal'
-import fetcher from '@/components/fetcher'
-import { toast } from 'react-toastify'
+import FirstPaymant from '@/components/Modals/FirstPaymant'
+import ModalPago from '@/components/Modals/ModalPago'
+import { handledPago } from '@/components/handledPago'
+
+// TODO NUEVO FLUJO
+// EL BOTON DE PAGO SE CAMBIARA POR ENVIAR CORREO
+
 export default function LoteID () {
   const router = useRouter()
   const { clienteID, proyectoID, loteID, clienteName } = router.query
-  console.log('🚀 ~ file: [clienteName].jsx ~ line 14 ~ LoteID ~  clienteID, proyectoID, loteID, clienteName', clienteID, proyectoID, loteID, clienteName)
 
   const { data: getAllPagosFromLote, mutate } = useSWR({
     key: '/api/getAllPagosFromLote',
@@ -24,40 +28,32 @@ export default function LoteID () {
     }
   })
 
-  const handledPago = (idpago) => {
-    try {
-      console.log('🚀 ~ file: [clienteName].jsx:28 ~ handledPago ~ idpago', idpago)
-      // TODO SE DEBE AGREAGAR INFORMACION ADICIONAL PARA EL PAGO
-      // TODO ARREGLAR EL MODIFICAR PAGO
-      const isPaid = fetcher({
-        key: '/api/pagarPago',
-        variables: {
-          pago: idpago
-        }
-      })
-      if (isPaid) {
-        mutate()
-      }
-    } catch (error) {
-      console.log('🚀 ~ file: [clienteName].jsx ~ line 37 ~ handledPago ~ error', error)
-      toast('Error al pagar el pago', { type: 'error' })
+  const [nopayments, setNoPayments] = useState(false)
+  useEffect(() => {
+    if (Array.isArray(getAllPagosFromLote) && getAllPagosFromLote.length === 0) {
+      setNoPayments(true)
     }
-  }
+
+    return () => {
+      setNoPayments(false)
+    }
+  }, [getAllPagosFromLote])
 
   const ButtonView = (item) => {
     return (
     <div className="flex justify-center gap-1 w-[100vw]">
+      <ModalPago rowData={item.row} mutate={mutate} />
       <button
-      onClick={() => handledPago(item.row._id)}
-      disabled={item.row.isPaid}
-      className="bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 border-b-4 border-blue-700 hover:border-blue-500 rounded disabled:opacity-25 disabled:cursor-not-allowed">
-        Pagar
-      </button>
-      <button
-      onClick={() => console.log(item)}
+      onClick={() => handledPago(item)}
       disabled={!item.row.isPaid}
       className="bg-teal-500 hover:bg-teal-400 text-white font-bold py-2 px-4 border-b-4 border-teal-700 hover:border-teal-500 rounded disabled:opacity-25 disabled:cursor-not-allowed">
-        Imprimir
+        Ver Pago
+      </button>
+      <button
+        onClick={() => console.log(item)}
+        disabled={!item.row.isPaid}
+        className="bg-yellow-500 hover:bg-yellow-400 text-white font-bold py-2 px-4 border-b-4 border-yellow-700 hover:border-yellow-500 rounded disabled:opacity-25 disabled:cursor-not-allowed">
+          Enviar
       </button>
       <ModificarModal data={item.row} />
     </div>
@@ -73,14 +69,16 @@ export default function LoteID () {
   }
 
   const formatRows = (data) => {
-    return data.map((item) => {
-      return {
-        ...item,
-        id: item._id,
-        folio: Number(item.folio),
-        deposito: numberFormat(item.monto) || 0
-      }
-    })
+    return data
+      .sort((a, b) => Number(b.folio) - Number(a.folio))
+      .map((item) => {
+        return {
+          ...item,
+          id: item._id,
+          folio: Number(item.folio),
+          deposito: numberFormat(item.monto) || 0
+        }
+      })
   }
 
   const statusRows = ({ row }) => {
@@ -112,7 +110,7 @@ export default function LoteID () {
     { field: 'refPago', headerName: 'Referencia', minWidth: 120, flex: 2, renderCell: buttonRefText },
     { field: 'tipoPago', headerName: 'Tipo de Pago', width: 140, renderCell: tipoPagoRows },
     { field: 'monto', headerName: 'deposito', width: 130 },
-    { field: '', headerName: 'Acciones', minWidth: 320, flex: 1, renderCell: ButtonView, headerAlign: 'center' }
+    { field: '', headerName: 'Acciones', minWidth: 320, flex: 3, renderCell: ButtonView, headerAlign: 'center' }
   ]
 
   const [openModal, setOpenModal] = useState(false)
@@ -165,6 +163,7 @@ export default function LoteID () {
         toogleClose={toogleCloseModal}
         mutate={mutate}
       />
+      <FirstPaymant open={nopayments} handleClose={() => setNoPayments(false)} />
     </div>
   )
 }

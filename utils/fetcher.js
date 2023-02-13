@@ -9,7 +9,8 @@ import {
   GET_EMAILS_CLIENTES,
   WATCH_LOTE_INFO,
   CREATE_PAGO,
-  PAGAR_PAGO
+  PAGAR_PAGO,
+  PATCH_PAGO
 } from '../graphql/query'
 const API_URL = process.env.NEXT_PUBLIC_API_URL
 
@@ -25,7 +26,9 @@ const endpoints = {
   '/api/getAllClients': GET_EMAILS_CLIENTES,
   '/api/watchLoteInfo': WATCH_LOTE_INFO,
   '/api/createPago': CREATE_PAGO,
-  '/api/pagarPago': PAGAR_PAGO
+  '/api/pagarPago': PAGAR_PAGO,
+  '/api/patchPago': PATCH_PAGO
+
 }
 
 export default async function fetcher ({ key, variables }) {
