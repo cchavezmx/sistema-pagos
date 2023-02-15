@@ -10,12 +10,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Install Vercel CLI
-        run: npm install --global vercel@latest
-      - name: install playwright
-        run: npm install playwright
       - name: configure playwright
-        run: npx playwright install-deps
+        run: npx playwright install-deps chromium
+      - name: config playwright
+        run: npx playwright install
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest      
       - name: Pull Vercel Environment Information
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
       - name: Build Project Artifacts
