@@ -30,7 +30,7 @@ export default function Owner () {
       <div className="container mx-auto">
         <div className="grid lg:grid-cols-4 md:grid-cols-2 grid-cols-1 gap-4">
             {
-              proyectos?.map((proyecto) => <CardProyecto proyecto={proyecto} key={proyecto._id} />)
+              proyectos?.length > 0 && proyectos?.map((proyecto) => <CardProyecto proyecto={proyecto} key={proyecto._id} />)
             }
         </div>
       </div>
