@@ -2,6 +2,8 @@ name: Vercel Production Deployment
 env:
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+  PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+  PLAYWRIGHT_BROWSERS_PATH: 0
 on:
   push:
     branches: ['develop']
@@ -9,13 +11,13 @@ jobs:
   Deploy-Production:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v2      
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
-      - name: install playwright
-        run: npm install playwright
-      - name: configure playwright
-        run: npx playwright install-deps
+      - name: Install Project Dependencies
+        run: npm install      
+      - name: Install playwrigth dependencies
+        run: npx playwright install chromium
       - name: Pull Vercel Environment Information
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
       - name: Build Project Artifacts

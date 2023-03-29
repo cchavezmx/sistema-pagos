@@ -31,6 +31,7 @@ export default function ProyectoId () {
   }
 
   const formatRows = (data) => {
+    console.log(data)
     return data.map((item) => {
       return {
         ...item,
